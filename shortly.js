@@ -28,14 +28,17 @@ app.use(express.static(__dirname + '/public'));
 var checkUser = function(req, res, next) {
   //check to see if user is logged in
   if (req.session.user) {
+    console.log('user has session');
     next();
   } else {
+    console.log('user has no session');
     res.redirect('/login');
   }
   // next();
 };
 
 app.get('/', checkUser, function(req, res) {
+  console.log('IN SERVER GET');
   res.render('index');
   //res.redirect('/login');
   // res.render('login');
@@ -99,6 +102,7 @@ app.get('/signup', function(req, res) {
 });
 
 app.get('/login', function(req, res) {
+  console.log('in GET login');
   res.render('login');
 });
 
@@ -118,7 +122,11 @@ app.post('/login', function(req, res) {
   });
 });
 
-
+app.get('/logout', function(req, res) {
+  console.log('IN LOGOUT GET');
+  req.session.destroy();
+  res.redirect('/');
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail

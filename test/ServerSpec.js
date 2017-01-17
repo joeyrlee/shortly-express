@@ -346,4 +346,10 @@ describe('', function() {
 
   }); // 'Account Login'
 
+  describe('Account Logout: ', function() {
+    it('Should log out users upon clicking Logout', function(done) {
+      
+    });
+  });
+
 });
