@@ -10,12 +10,14 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
+var session = require('express-session');
 
 var app = express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
+app.use(session({secret: 'ssshhhhh'})); //added by us
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
 // Parse forms (signup/login)
@@ -23,18 +25,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
-function(req, res) {
+var checkUser = function(req, res, next) {
+  //check to see if user is logged in
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+  // next();
+};
+
+app.get('/', checkUser, function(req, res) {
+  res.render('index');
+  //res.redirect('/login');
+  // res.render('login');
+});
+
+app.get('/create', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
-function(req, res) {
-  res.render('index');
-});
-
-app.get('/links', 
-function(req, res) {
+app.get('/links', checkUser, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
@@ -75,6 +86,37 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.post('/signup', function(req, res) {
+  //put username and pass in database
+  db.knex('users').insert({username: req.body.username, password: req.body.password})
+    .then( function (result) {
+      res.redirect('/');
+    });
+});
+
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
+
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.post('/login', function(req, res) {
+  db.knex('users').where({
+    username: req.body.username,
+    password: req.body.password
+  })
+  .then(function(dbResult) {
+    if (dbResult.length > 0) {
+      req.session.user = req.body.username;
+      //set some session token #maybe todo
+      res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+  });
+});
 
 
 
