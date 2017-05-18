@@ -39,17 +39,15 @@ db.knex.schema.hasTable('clicks').then(function(exists) {
 /************************************************************/
 // Add additional schema definitions below
 /************************************************************/
-// db.knex.schema.createTableIfNotExists('users', function (table) {
-//   table.increments();
-//   table.string('password');
-//   table.string('username');
-// });
+
+
 db.knex.schema.hasTable('users').then(function(exists) {
   if (!exists) {
-    db.knex.schema.createTable('users', function (table) {
-      table.increments('id').primary();
-      table.string('username', 255);
-      table.string('password', 255);
+    db.knex.schema.createTable('users', function (user) {
+      user.increments('id').primary();
+      user.string('username', 100).unique();
+      user.string('password', 100);
+      user.timestamps();
     }).then(function (table) {
       console.log('Created Table', table);
     });
